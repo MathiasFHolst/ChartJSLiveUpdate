@@ -1,0 +1,86 @@
+﻿@using ChartJSLive.Classes
+@model ChartJSLive.Models.ViewData
+@{
+    ViewData["Title"] = "Chart";
+}
+
+<h1 style="text-align: center">Live chart</h1>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!--Insert Chart-->
+<div>
+    <canvas id="myChart"></canvas>
+</div>
+
+<script>
+        const labels = ["Mandag",
+                        "Tirsdag", 
+                        "Onsdag", 
+                        "Torsdag", 
+                        "Fredag", 
+                        "Lørdag", 
+                        "Søndag"];
+        
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'DS1',
+                backgroundColor: 'rgb(255, 0, 0)',
+                borderColor: 'rgb(255, 0, 0)',
+                data: [50, 33, 14, 55, 12, 24, 46],
+            }, {
+                label: 'DS2',
+                backgroundColor: 'rgb(0, 255, 0)',
+                borderColor: 'rgb(0, 255, 0)',
+                data: [10, 33, 54, 15, 62, 54, 55],
+            }, {
+                label: 'DS3',
+                backgroundColor: 'rgb(0, 0, 255)',
+                borderColor: 'rgb(0, 0, 255)',
+                data: [51, 3, 24, 15, 19, 74, 96],
+            }, {
+                label: 'DS4',
+                backgroundColor: 'rgb(128, 128, 128)',
+                borderColor: 'rgb(128, 128, 128)',
+                data: [90, 93, 74, 95, 82, 84, 76],
+            }]
+        };
+        const config = {
+            type: 'line',
+            data,
+            options: {}
+        };
+        var myChart = new Chart(
+            document.getElementById('myChart'),
+            config
+        );
+
+
+        function update(){
+            
+            var url = "Chart/GetNewData"
+            
+            $.get(url, null, function(ControllerData) {
+
+            // for loop runs 4 times
+            for(let i = 0; i < data.datasets.length; i++){
+                
+                // Inserts new data at the end of the 4 DataSet's
+                data.datasets[i].data[6]= ControllerData.listOfScatters[i].x;
+                data.datasets[i].data.shift();
+                
+            }
+            
+            // Shifts the date in the Y axis once every time there is new data.
+            // It only shows the past 6 days of data
+            const labelShift = labels.shift();
+            myChart.update();
+            labels[6]= labelShift; 
+
+            });     
+
+        
+        
+        };
+        setInterval(update, 5000);
+</script>
